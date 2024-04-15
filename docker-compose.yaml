@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  app:
+    build: .
+    ports:
+      - 3333:3333
+    depends_on:
+      redis:
+        condition: service_healthy
+      database:
+        condition: service_healthy
+    environment:
+      REDIS_HOST: redis
+      DATABASE_HOST: database
+
+  database:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: churchtools
+    ports:
+      - 3306:3306
+    volumes:
+      - ./db-data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'mysqladmin',
+          'ping',
+          '-h',
+          'localhost',
+          '-u',
+          'root',
+          '-p$(MYSQL_ROOT_PASSWORD)',
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.0
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-h', 'localhost', 'ping']
+      interval: 15s
+      timeout: 5s
+      retries: 5

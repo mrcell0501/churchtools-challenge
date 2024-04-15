@@ -1,0 +1,7 @@
+/dist
+/node_modules
+/db-data
+/.docs
+
+docker-compose.yaml
+Dockerfile
